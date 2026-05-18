@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Início do Dia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Paleta inspirada em Celeste */
+      --bg-dark: #120A24;
+      --bg-purple: #231942;
+      --bg-accent: #3E275E;
+      --card-bg: rgba(35, 25, 66, 0.6);
+      --card-border: rgba(249, 161, 198, 0.25);
+      
+      --pink-main: #D464A4;
+      --pink-light: #F9A1C6;
+      --teal-main: #2CC5D2;
+      --teal-light: #74E7D4;
+      
+      --text-main: #FFFFFF;
+      --text-muted: #B8A6D9;
+      --success: #2CC5D2;
+      --danger: #E04A73;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Fundo estrelado/neve estilo Celeste */
+    .background-art {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      background: 
+        radial-gradient(ellipse at bottom left, rgba(212, 100, 164, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at top right, rgba(44, 197, 210, 0.1) 0%, transparent 40%),
+        linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-purple) 100%);
+    }
+
+    .particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      background-image: 
+        radial-gradient(var(--text-main) 1px, transparent 1px),
+        radial-gradient(var(--pink-light) 1px, transparent 1px);
+      background-size: 50px 50px, 100px 100px;
+      background-position: 0 0, 25px 25px;
+      opacity: 0.15;
+      animation: snow 20s linear infinite;
+    }
+
+    @keyframes snow {
+      0% { background-position: 0 0, 25px 25px; }
+      100% { background-position: 50px 50px, 125px 125px; }
+    }
+
+    .dashboard-container {
+      max-width: 1100px;
+      width: 100%;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dashboard-header {
+      margin-bottom: 2rem;
+      text-align: left;
+      border-bottom: 2px dashed var(--card-border);
+      padding-bottom: 1rem;
+    }
+
+    .header-info {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .date, .time, .weather {
+      color: var(--teal-light);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+    }
+
+    .time {
+      color: var(--pink-light);
+    }
+
+    .weather {
+      color: var(--text-main);
+      gap: 6px;
+    }
+
+    .greeting {
+      font-family: 'Press Start 2P', cursive;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 400;
+      color: var(--pink-light);
+      text-shadow: 2px 2px 0px var(--bg-accent), 4px 4px 0px rgba(0,0,0,0.5);
+      line-height: 1.4;
+    }
+
+    /* Cards Superiores */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid var(--bg-accent);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 0 var(--bg-accent);
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 0 var(--bg-accent), 0 15px 20px rgba(0,0,0,0.5);
+      border-color: var(--pink-main);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      background: var(--bg-purple);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 2px solid var(--bg-accent);
+      flex-shrink: 0;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Layout Principal (Agenda + Tracker) */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid var(--bg-accent);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 8px 0 var(--bg-accent);
+    }
+
+    .panel-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .panel-icon {
+      font-size: 1.5rem;
+    }
+
+    .panel-title {
+      color: var(--pink-light);
+      font-size: 1rem;
+      font-weight: 400;
+      font-family: 'Press Start 2P', cursive;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .left-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .priorities-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .priorities-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(0,0,0,0.2);
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .priorities-list li:hover {
+      background: rgba(0,0,0,0.4);
+      border-color: var(--pink-main);
+    }
+
+    .priorities-list input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--teal-main);
+      border-radius: 4px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .priorities-list input[type="checkbox"]:checked {
+      background: var(--teal-main);
+    }
+    
+    .priorities-list input[type="checkbox"]:checked::after {
+      content: '✔';
+      color: var(--bg-dark);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* Vagas Breakdown */
+    .vagas-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .vaga-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      background: rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .vaga-item .v-label {
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .vaga-item .v-val {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.55rem;
+    }
+
+    /* Agenda do Mês */
+    .agenda-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      max-height: 400px;
+      padding-right: 5px;
+    }
+
+    .agenda-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .agenda-list::-webkit-scrollbar-thumb {
+      background: var(--pink-main);
+      border-radius: 10px;
+    }
+
+    .agenda-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.75rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--cal-color, var(--teal-main));
+      transition: all 0.2s ease;
+    }
+
+    .agenda-item.done {
+      opacity: 0.45;
+    }
+    .agenda-item.done .agenda-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .agenda-item.done .agenda-time::before {
+      content: '✓ ';
+      color: var(--teal-main);
+    }
+
+    .agenda-check {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--teal-main);
+      border-radius: 4px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.15s;
+    }
+    .agenda-check:checked {
+      background: var(--teal-main);
+    }
+    .agenda-check:checked::after {
+      content: '✔';
+      color: var(--bg-dark);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 11px;
+      font-weight: bold;
+    }
+    
+    .agenda-item:hover {
+      transform: translateX(4px);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .agenda-checkbox {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--teal-main);
+      border-radius: 4px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .agenda-checkbox:checked {
+      background: var(--teal-main);
+    }
+    
+    .agenda-checkbox:checked::after {
+      content: '✔';
+      color: var(--bg-dark);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .agenda-item:has(.agenda-checkbox:checked) {
+      opacity: 0.4;
+      border-left-color: var(--card-border);
+    }
+
+    .agenda-item:has(.agenda-checkbox:checked) .agenda-title {
+      text-decoration: line-through;
+    }
+
+    .agenda-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-purple);
+      color: var(--text-main);
+      min-width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: 1px solid var(--bg-accent);
+    }
+
+    .agenda-date .day {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .agenda-date .month {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--teal-light);
+      margin-top: 2px;
+    }
+
+    .agenda-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .agenda-time {
+      font-size: 0.75rem;
+      color: var(--teal-light);
+      font-family: 'Press Start 2P', cursive;
+      margin-bottom: 4px;
+    }
+
+    .agenda-title {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    /* Tracker Compacto */
+    .tracker-panel {
+      padding: 1.5rem;
+    }
+
+    .tracker-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: rgba(0,0,0,0.2);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--bg-accent);
+    }
+
+    .select-task {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-purple);
+      border: 2px solid var(--bg-accent);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .select-task:focus {
+      border-color: var(--pink-main);
+    }
+
+    .timer-display {
+      font-size: 1.5rem;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+      color: var(--teal-light);
+      margin: 0.5rem 0;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 rgba(0,0,0,0.3);
+    }
+
+    .btn-start {
+      background: var(--success);
+    }
+    .btn-start:hover:not(:disabled) { background: #20A4B0; }
+
+    .btn-stop {
+      background: var(--danger);
+    }
+    .btn-stop:hover:not(:disabled) { background: #C0375D; }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transform: translateY(4px);
+    }
+
+    .celeste-login-btn {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      color: var(--text-main);
+      background: rgba(35, 25, 66, 0.7);
+      border: 2px solid var(--teal-main);
+      padding: 0.85rem 1.5rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0px rgba(0,0,0,0.6);
+      transition: all 0.2s ease;
+      letter-spacing: 0.05em;
+    }
+    .celeste-login-btn:hover {
+      background: var(--teal-main);
+      color: var(--bg-dark);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.6);
+    }
+    .celeste-login-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(0,0,0,0.6);
+    }
+
+    .tracked-times {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tracked-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.15);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    .tracked-item .emoji {
+      margin-right: 6px;
+    }
+
+    .tracked-item span:last-child {
+      color: var(--text-main);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.6rem;
+      color: var(--pink-light);
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      .card {
+        padding: 1rem;
+      }
+    }
+
+    /* Pomodoro Celeste */
+    .pomodoro-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.15);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-top: auto;
+      margin-bottom: auto;
+      flex: 1;
+      justify-content: center;
+    }
+    .pomodoro-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: var(--bg-purple);
+      padding: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid var(--bg-accent);
+    }
+    .pomo-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .pomo-tab.active {
+      background: var(--pink-main);
+      color: white;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+    }
+    .pomo-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
+    
+    .pomodoro-timer {
+      font-size: clamp(3rem, 6vw, 4.5rem);
+      font-family: 'Press Start 2P', cursive;
+      color: var(--teal-light);
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.5), 0 0 20px rgba(44,197,210,0.4);
+      margin-bottom: 2.5rem;
+      letter-spacing: 2px;
+    }
+    
+    .pomodoro-controls {
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+    }
+    .pomo-btn {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      transition: all 0.15s;
+    }
+    .pomo-btn.start { background: var(--success); color: white; }
+    .pomo-btn.start:hover { background: #20A4B0; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.3); }
+    .pomo-btn.start:active { transform: translateY(4px); box-shadow: none; }
+    
+    .pomo-btn.reset { background: var(--bg-accent); color: white; }
+    .pomo-btn.reset:hover { background: #4D3273; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.3); }
+    .pomo-btn.reset:active { transform: translateY(4px); box-shadow: none; }
+
+    /* Brain Dump */
+    .braindump-input {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .braindump-input:focus {
+      border-color: var(--pink-main);
+      background: rgba(0,0,0,0.3);
+    }
+    .braindump-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* Tarefas Advanced */
+    .task-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      background: rgba(0,0,0,0.15);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .task-input-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .task-input {
+      flex: 1;
+      padding: 0.6rem 0.9rem;
+      background: rgba(0,0,0,0.3);
+      border: 2px solid var(--bg-accent);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .task-input:focus { border-color: var(--pink-main); }
+    select.task-input { cursor: pointer; min-width: 130px; }
+    input[type="date"].task-input { cursor: pointer; min-width: 140px; color-scheme: dark; }
+
+    .task-add-btn {
+      padding: 0.75rem 1rem;
+      background: var(--pink-main);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      transition: all 0.15s ease;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .task-add-btn:hover { background: var(--pink-light); transform: translateY(-2px); }
+    .task-add-btn:active { transform: translateY(2px); box-shadow: none; }
+
+    .tasks-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .task-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: rgba(0,0,0,0.2);
+      padding: 0.85rem;
+      border-radius: 10px;
+      border-left: 4px solid var(--text-muted);
+      transition: all 0.2s;
+    }
+    .task-item.priority-alta { border-left-color: var(--danger); }
+    .task-item.priority-media { border-left-color: #F9C74F; }
+    .task-item.priority-baixa { border-left-color: var(--teal-main); }
+    
+    .task-item.concluida { opacity: 0.5; border-left-color: var(--text-muted); }
+    .task-item.concluida .task-title { text-decoration: line-through; }
+
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .task-check {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--teal-main);
+      border-radius: 4px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      position: relative;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .task-check:checked { background: var(--teal-main); }
+    .task-check:checked::after {
+      content: '✔';
+      color: var(--bg-dark);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .task-content { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
+    .task-title { font-size: 1rem; color: var(--text-main); font-weight: 600; }
+    .task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; word-break: break-word; }
+    .task-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--pink-light); margin-top: 0.2rem; }
+    .task-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+    .task-del-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.1rem;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      padding: 0.2rem;
+    }
+    .task-del-btn:hover { opacity: 1; }
+
+    .subtasks-container {
+      margin-top: 0.5rem;
+      padding-left: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .subtask-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+    .subtask-item.concluida { opacity: 0.5; text-decoration: line-through; }
+    .subtask-check {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--text-muted);
+      border-radius: 3px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .subtask-check:checked { background: var(--text-muted); }
+    .subtask-check:checked::after {
+      content: '✔';
+      color: var(--bg-dark);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .add-subtask-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    .add-subtask-input {
+      flex: 1;
+      padding: 0.3rem 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      outline: none;
+    }
+    .add-subtask-input:focus { border-color: var(--pink-main); }
+    .add-subtask-btn {
+      background: var(--bg-accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0 0.5rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .add-subtask-btn:hover { background: var(--pink-main); }
+
+  </style>
+</head>
+<body>
+
+  <div class="background-art"></div>
+  <div class="particles"></div>
+
+  <div id="login-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; z-index: 10;">
+    <h1 class="greeting" style="margin-bottom: 1.5rem; text-align: center; color: var(--pink-light);">Bem-vinda ao seu dia</h1>
+    <p style="margin-bottom: 2.5rem; color: var(--teal-light); font-size: 0.7rem; font-family: 'Press Start 2P', cursive; text-transform: uppercase; text-shadow: 2px 2px 0px rgba(0,0,0,0.6); text-align: center; line-height: 1.5; letter-spacing: 1px;">Faça login para continuar</p>
+    <button id="authorize_button" class="celeste-login-btn" style="visibility: hidden;" onclick="handleAuthClick()">Entrar com Google</button>
+  </div>
+
+  <div class="dashboard-container" id="dashboard-container" style="display: none;">
+    <header class="dashboard-header">
+      <div class="header-info" style="justify-content: space-between; width: 100%;">
+        <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+          <p class="date" id="current-date">✦ -- ✦</p>
+          <p class="time" id="current-time">--:--</p>
+        </div>
+        <div id="google-login-container">
+          <button id="signout_button" class="btn btn-stop" style="font-size: 0.75rem; padding: 0.5rem 1rem; display: none; width: auto; flex: none; box-shadow: none;" onclick="handleSignoutClick()">Sair</button>
+        </div>
+      </div>
+      <h1 class="greeting" id="greeting-text">Olá, Jayne</h1>
+    </header>
+
+    <!-- Cards Superiores com ícones temáticos -->
+    <main class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+      <div class="card" style="justify-content: center; text-align: center; flex-direction: column; padding: 2rem;">
+        <div class="card-icon" style="margin-bottom: 1rem; width: 60px; height: 60px; font-size: 2rem;">🏔️</div>
+        <div class="card-content" style="align-items: center;">
+          <h2 class="card-title" style="font-size: 1.1rem; text-transform: none;">Todos os e-mails</h2>
+          <p class="card-value" id="val-total-emails" style="font-size: 3rem;">--</p>
+        </div>
+      </div>
+      
+      <div class="card" style="justify-content: center; text-align: center; flex-direction: column; padding: 2rem;">
+        <div class="card-icon" style="margin-bottom: 1rem; width: 60px; height: 60px; font-size: 2rem;">🍓</div>
+        <div class="card-content" style="align-items: center;">
+          <h2 class="card-title" style="font-size: 1.1rem; text-transform: none;">Não lidas</h2>
+          <p class="card-value" id="val-unread-emails" style="font-size: 3rem;">--</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Linha 1: Compromissos e Tarefas -->
+    <div class="main-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+      <!-- Painel: Compromissos da Semana -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">✨</span>
+          <h2 class="panel-title">Compromissos da Semana</h2>
+        </div>
+        <ul class="agenda-list" id="agenda-list">
+          <li style="opacity: 0.6; text-align: center; font-size: 0.85rem; padding: 1rem 0;">Carregando compromissos...</li>
+        </ul>
+      </section>
+
+      <!-- Painel: Tarefas / Prioridades -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">⭐</span>
+          <h2 class="panel-title">Tarefas do Dia</h2>
+        </div>
+        <div class="task-form">
+          <div class="task-input-row">
+            <input type="text" id="task-title" class="task-input" placeholder="Título da tarefa..." required style="flex: 2;">
+            <select id="task-priority" class="task-input">
+              <option value="baixa">Baixa Prioridade</option>
+              <option value="media">Média Prioridade</option>
+              <option value="alta">Alta Prioridade</option>
+            </select>
+            <input type="date" id="task-deadline" class="task-input">
+          </div>
+          <div class="task-input-row">
+            <textarea id="task-desc" class="task-input" placeholder="Descrição da tarefa (até 230 caracteres)" maxlength="230" style="resize: none; height: 60px;"></textarea>
+          </div>
+          <button class="task-add-btn" onclick="addTask()">Adicionar Tarefa</button>
+        </div>
+        <ul class="tasks-list" id="tasks-list"></ul>
+      </section>
+    </div>
+
+    <!-- Linha 2: Brain Dump e Pomodoro -->
+    <div class="main-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+      <!-- Painel: Brain Dump -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">💭</span>
+          <h2 class="panel-title">Brain Dump</h2>
+        </div>
+        <textarea id="braindump-textarea" class="braindump-input" placeholder="Ideias, anotações rápidas ou uma lista do que vier à mente... (Fica salvo automaticamente)" oninput="saveBrainDump()"></textarea>
+      </section>
+
+      <!-- Painel: Pomodoro Celeste -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">🍓</span>
+          <h2 class="panel-title">Pomodoro</h2>
+        </div>
+        <div class="pomodoro-container">
+          <div class="pomodoro-tabs">
+            <button class="pomo-tab active" onclick="setPomodoroMode('pomo')">Foco</button>
+            <button class="pomo-tab" onclick="setPomodoroMode('short')">Pausa Curta</button>
+            <button class="pomo-tab" onclick="setPomodoroMode('long')">Pausa Longa</button>
+          </div>
+          <div class="pomodoro-timer" id="pomodoro-time">25:00</div>
+          <div class="pomodoro-controls">
+            <button class="pomo-btn start" id="pomo-start-btn" onclick="togglePomodoro()">Iniciar</button>
+            <button class="pomo-btn reset" onclick="resetPomodoro()">Resetar</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+      document.getElementById('current-date').textContent = `✦ ${now.toLocaleDateString('pt-BR', options)} ✦`;
+      document.getElementById('current-time').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      const hour = now.getHours();
+      let greeting = 'Boa noite';
+      if (hour >= 5 && hour < 12) {
+        greeting = 'Bom dia';
+      } else if (hour >= 12 && hour < 18) {
+        greeting = 'Boa tarde';
+      }
+      document.getElementById('greeting-text').innerHTML = `${greeting},<span style="display:inline-block; width: 0.2em;"></span>Jayne`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ===================== TAREFAS =====================
+    const TASKS_KEY = 'celeste_tasks_v2';
+
+    function loadTasks() {
+      return JSON.parse(localStorage.getItem(TASKS_KEY) || '[]');
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      const tasks = loadTasks();
+      const list = document.getElementById('tasks-list');
+      if (tasks.length === 0) {
+        list.innerHTML = '<li style="opacity: 0.5; font-size: 0.85rem; padding: 0.5rem 0; text-align: center;">Nenhuma tarefa adicionada</li>';
+        return;
+      }
+      
+      let html = '';
+      tasks.forEach((t, i) => {
+        const isDone = t.concluida ? 'concluida' : '';
+        const priorityClass = 'priority-' + (t.priority || 'baixa');
+        
+        let subtasksHtml = '';
+        if (t.subtasks && t.subtasks.length > 0) {
+          subtasksHtml = t.subtasks.map((st, j) => `
+            <div class="subtask-item ${st.concluida ? 'concluida' : ''}">
+              <input type="checkbox" class="subtask-check" ${st.concluida ? 'checked' : ''} onchange="toggleSubtask(${i}, ${j}, this.checked)">
+              <span>${st.title}</span>
+              <button class="task-del-btn" style="font-size: 0.8rem; padding: 0;" onclick="deleteSubtask(${i}, ${j})" title="Remover subtarefa">🗑️</button>
+            </div>
+          `).join('');
+        }
+
+        html += `
+          <li class="task-item ${isDone} ${priorityClass}">
+            <div class="task-header">
+              <input type="checkbox" class="task-check" ${t.concluida ? 'checked' : ''} onchange="toggleTask(${i}, this.checked)">
+              <div class="task-content">
+                <div class="task-title">${t.title}</div>
+                ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+                <div class="task-meta">
+                  <span>🎯 Prioridade: ${t.priority ? t.priority.charAt(0).toUpperCase() + t.priority.slice(1) : 'Baixa'}</span>
+                  ${t.deadline ? `<span>📅 Prazo: ${new Date(t.deadline).toLocaleDateString('pt-BR')}</span>` : ''}
+                </div>
+              </div>
+              <button class="task-del-btn" onclick="deleteTask(${i})" title="Remover">🗑️</button>
+            </div>
+            <div class="subtasks-container">
+              ${subtasksHtml}
+              <div class="add-subtask-row">
+                <input type="text" id="subtask-input-${i}" class="add-subtask-input" placeholder="Nova subtarefa..." onkeydown="if(event.key==='Enter') addSubtask(${i})">
+                <button class="add-subtask-btn" onclick="addSubtask(${i})">+</button>
+              </div>
+            </div>
+          </li>
+        `;
+      });
+      list.innerHTML = html;
+    }
+
+    function addTask() {
+      const titleInput = document.getElementById('task-title');
+      const descInput = document.getElementById('task-desc');
+      const priorityInput = document.getElementById('task-priority');
+      const deadlineInput = document.getElementById('task-deadline');
+      
+      const title = titleInput.value.trim();
+      const desc = descInput.value.trim();
+      const priority = priorityInput.value;
+      const deadline = deadlineInput.value;
+      
+      if (!title) {
+        alert("O título da tarefa é obrigatório.");
+        return;
+      }
+      
+      const tasks = loadTasks();
+      tasks.push({ 
+        title, 
+        desc, 
+        priority, 
+        deadline, 
+        concluida: false,
+        subtasks: []
+      });
+      saveTasks(tasks);
+      
+      titleInput.value = '';
+      descInput.value = '';
+      priorityInput.value = 'baixa';
+      deadlineInput.value = '';
+      
+      renderTasks();
+    }
+
+    function toggleTask(index, checked) {
+      const tasks = loadTasks();
+      tasks[index].concluida = checked;
+      saveTasks(tasks);
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      if(confirm('Tem certeza que deseja remover esta tarefa?')) {
+        const tasks = loadTasks();
+        tasks.splice(index, 1);
+        saveTasks(tasks);
+        renderTasks();
+      }
+    }
+    
+    function addSubtask(taskIndex) {
+      const input = document.getElementById('subtask-input-' + taskIndex);
+      const title = input.value.trim();
+      if (!title) return;
+      
+      const tasks = loadTasks();
+      if (!tasks[taskIndex].subtasks) tasks[taskIndex].subtasks = [];
+      tasks[taskIndex].subtasks.push({ title, concluida: false });
+      saveTasks(tasks);
+      renderTasks();
+    }
+    
+    function toggleSubtask(taskIndex, subtaskIndex, checked) {
+      const tasks = loadTasks();
+      tasks[taskIndex].subtasks[subtaskIndex].concluida = checked;
+      saveTasks(tasks);
+      renderTasks();
+    }
+    
+    function deleteSubtask(taskIndex, subtaskIndex) {
+      const tasks = loadTasks();
+      tasks[taskIndex].subtasks.splice(subtaskIndex, 1);
+      saveTasks(tasks);
+      renderTasks();
+    }
+
+    renderTasks();
+
+    // ===================== POMODORO =====================
+    let pomoTime = 25 * 60;
+    let pomoTimerId = null;
+    let pomoMode = 'pomo';
+    
+    const pomoDurations = {
+      pomo: 25 * 60,
+      short: 5 * 60,
+      long: 15 * 60
+    };
+
+    function setPomodoroMode(mode) {
+      if (pomoTimerId) togglePomodoro(); 
+      
+      pomoMode = mode;
+      pomoTime = pomoDurations[mode];
+      updatePomodoroDisplay();
+      
+      document.querySelectorAll('.pomo-tab').forEach(tab => tab.classList.remove('active'));
+      const index = mode === 'pomo' ? 0 : mode === 'short' ? 1 : 2;
+      document.querySelectorAll('.pomo-tab')[index].classList.add('active');
+    }
+
+    function updatePomodoroDisplay() {
+      const m = Math.floor(pomoTime / 60).toString().padStart(2, '0');
+      const s = (pomoTime % 60).toString().padStart(2, '0');
+      document.getElementById('pomodoro-time').innerText = `${m}:${s}`;
+    }
+
+    function togglePomodoro() {
+      const btn = document.getElementById('pomo-start-btn');
+      if (pomoTimerId) {
+        // Pause
+        clearInterval(pomoTimerId);
+        pomoTimerId = null;
+        btn.innerText = 'Iniciar';
+        btn.style.background = 'var(--success)';
+      } else {
+        // Start
+        btn.innerText = 'Pausar';
+        btn.style.background = 'var(--danger)';
+        pomoTimerId = setInterval(() => {
+          if (pomoTime > 0) {
+            pomoTime--;
+            updatePomodoroDisplay();
+          } else {
+            clearInterval(pomoTimerId);
+            pomoTimerId = null;
+            btn.innerText = 'Iniciar';
+            btn.style.background = 'var(--success)';
+            
+            // Toca um pequeno beep e mostra um alerta 
+            // (Um som de coletável do Celeste seria ótimo, mas um alert funciona por agora)
+            alert('Tempo finalizado! 🍓');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetPomodoro() {
+      if (pomoTimerId) togglePomodoro();
+      pomoTime = pomoDurations[pomoMode];
+      updatePomodoroDisplay();
+    }
+
+    // ===================== BRAIN DUMP =====================
+    const BRAINDUMP_KEY = 'celeste_braindump';
+    
+    function loadBrainDump() {
+      const textarea = document.getElementById('braindump-textarea');
+      if (textarea) {
+        textarea.value = localStorage.getItem(BRAINDUMP_KEY) || '';
+      }
+    }
+    
+    function saveBrainDump() {
+      const textarea = document.getElementById('braindump-textarea');
+      if (textarea) {
+        localStorage.setItem(BRAINDUMP_KEY, textarea.value);
+      }
+    }
+    
+    // Inicia os componentes carregados do localStorage
+    loadBrainDump();
+
+    // --- Google API Integration & Persistent Login ---
+    const CLIENT_ID = '599612890050-uqvro62o4dbr38f7guskdmk79f643d0i.apps.googleusercontent.com';
+    const DISCOVERY_DOCS = [
+      'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest',
+      'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
+    ];
+    const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly';
+    const APP_VERSION = 'v2.1'; // Atualize este valor quando houver "atualizações grandes" no dashboard
+
+    let tokenClient;
+    let gapiInited = false;
+    let gisInited = false;
+    
+    // Atualiza inatividade
+    function updateActivity() {
+      localStorage.setItem('celeste_last_active', Date.now());
+    }
+    document.addEventListener('mousemove', updateActivity);
+    document.addEventListener('keydown', updateActivity);
+    document.addEventListener('click', updateActivity);
+
+    function gapiLoaded() {
+      gapi.load('client', initializeGapiClient);
+    }
+
+    async function initializeGapiClient() {
+      await gapi.client.init({
+        discoveryDocs: DISCOVERY_DOCS,
+      });
+      gapiInited = true;
+      maybeEnableButtons();
+    }
+
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: '', 
+      });
+      gisInited = true;
+      maybeEnableButtons();
+    }
+
+    function maybeEnableButtons() {
+      if (gapiInited && gisInited) {
+        checkPersistentLogin();
+      }
+    }
+    
+    function checkPersistentLogin() {
+      const savedTokenStr = localStorage.getItem('celeste_auth_token');
+      const lastActive = localStorage.getItem('celeste_last_active');
+      const appVersion = localStorage.getItem('celeste_app_version');
+      
+      let needsLogin = true;
+      
+      if (savedTokenStr && lastActive && appVersion === APP_VERSION) {
+        const now = Date.now();
+        // Verifica inatividade de 1 hora (3600000 ms)
+        if (now - parseInt(lastActive) < 3600000) {
+          needsLogin = false;
+          const tokenObj = JSON.parse(savedTokenStr);
+          gapi.client.setToken(tokenObj);
+          
+          document.getElementById('signout_button').style.display = 'inline-block';
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('dashboard-container').style.display = 'block';
+          fetchRealData();
+        }
+      }
+      
+      if (needsLogin) {
+        document.getElementById('authorize_button').style.visibility = 'visible';
+        localStorage.removeItem('celeste_auth_token');
+      }
+    }
+
+    function handleAuthClick() {
+      tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) {
+          throw (resp);
+        }
+        
+        // Salva dados para login persistente
+        localStorage.setItem('celeste_auth_token', JSON.stringify(resp));
+        localStorage.setItem('celeste_last_active', Date.now());
+        localStorage.setItem('celeste_app_version', APP_VERSION);
+        
+        document.getElementById('signout_button').style.display = 'inline-block';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard-container').style.display = 'block';
+        await fetchRealData();
+      };
+
+      tokenClient.requestAccessToken({prompt: 'consent'});
+    }
+
+    function handleSignoutClick() {
+      const token = gapi.client.getToken();
+      if (token !== null) {
+        google.accounts.oauth2.revoke(token.access_token);
+        gapi.client.setToken('');
+      }
+      
+      // Limpa dados de login
+      localStorage.removeItem('celeste_auth_token');
+      localStorage.removeItem('celeste_last_active');
+      
+      document.getElementById('signout_button').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('dashboard-container').style.display = 'none';
+      document.getElementById('authorize_button').style.visibility = 'visible';
+    }
+
+    async function getExactCount() {
+      let total = 0;
+      let pageToken = null;
+      do {
+        // Busca TODAS as conversas (threads).
+        // Por padrão, a API já exclui Spam e Lixeira, igual à pasta "Todos os e-mails"
+        let req = { 
+          userId: 'me', 
+          maxResults: 500, 
+          pageToken: pageToken,
+          fields: 'nextPageToken,threads(id)'
+        };
+
+        let res = await gapi.client.gmail.users.threads.list(req);
+        if (res.result.threads) {
+          total += res.result.threads.length;
+        }
+        pageToken = res.result.nextPageToken;
+      } while (pageToken);
+      return total;
+    }
+
+    async function getExactUnreadCount() {
+      let total = 0;
+      let pageToken = null;
+      do {
+        let req = { 
+          userId: 'me', 
+          maxResults: 500, 
+          pageToken: pageToken,
+          q: 'is:unread in:inbox',
+          fields: 'nextPageToken,threads(id)'
+        };
+
+        let res = await gapi.client.gmail.users.threads.list(req);
+        if (res.result.threads) {
+          total += res.result.threads.length;
+        }
+        pageToken = res.result.nextPageToken;
+      } while (pageToken);
+      return total;
+    }
+
+    async function fetchRealData() {
+      try {
+        document.getElementById('val-total-emails').innerText = '...';
+        document.getElementById('val-unread-emails').innerText = '...';
+
+        const [totalCount, unreadCount] = await Promise.all([
+          getExactCount(),
+          getExactUnreadCount()
+        ]);
+        
+        document.getElementById('val-total-emails').innerText = totalCount.toLocaleString('pt-BR');
+        document.getElementById('val-unread-emails').innerText = unreadCount.toLocaleString('pt-BR');
+
+        // Iniciar monitoramento de e-mails respondidos
+        startEmailPolling(unreadCount);
+      } catch (err) {
+        console.error('Erro ao buscar emails', err);
+      }
+
+      // Buscar próximos eventos do calendário principal (Jayne)
+      try {
+        const now = new Date();
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+        const evRes = await gapi.client.calendar.events.list({
+          calendarId: 'primary',
+          timeMin: now.toISOString(),
+          timeMax: endOfMonth.toISOString(),
+          showDeleted: false,
+          singleEvents: true,
+          orderBy: 'startTime',
+          maxResults: 20
+        });
+
+        const events = evRes.result.items || [];
+        const agendaList = document.getElementById('agenda-list');
+
+        if (events.length > 0) {
+          agendaList.innerHTML = '';
+          events.forEach(event => {
+            let startDate;
+            if (event.start.dateTime) {
+              startDate = new Date(event.start.dateTime);
+            } else {
+              const [y, m, d] = event.start.date.split('-');
+              startDate = new Date(y, m - 1, d);
+            }
+
+            const day = startDate.getDate().toString().padStart(2, '0');
+            const weekday = startDate.toLocaleString('pt-BR', { weekday: 'short' }).replace('.', '');
+            const time = event.start.dateTime
+              ? startDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+              : 'Dia todo';
+
+            const eventKey = 'meeting_' + (event.id || (event.summary + startDate.toISOString()));
+            const isDone = localStorage.getItem(eventKey) === '1';
+
+            agendaList.innerHTML += `
+              <li class="agenda-item${isDone ? ' done' : ''}" style="--cal-color: #2CC5D2;" id="ev-${event.id}">
+                <input type="checkbox" class="agenda-check" ${isDone ? 'checked' : ''}
+                  onchange="toggleMeeting('${eventKey}', 'ev-${event.id}', this.checked)">
+                <div class="agenda-date">
+                  <span class="day">${day}</span>
+                  <span class="month">${weekday}</span>
+                </div>
+                <div class="agenda-info">
+                  <span class="agenda-time">${time}</span>
+                  <span class="agenda-title">${event.summary || '(sem título)'}</span>
+                </div>
+              </li>
+            `;
+          });
+
+          // Sincronizar contador de reuniões removido conforme solicitação
+        } else {
+          agendaList.innerHTML = '<li style="opacity: 0.6; text-align: center; font-size: 0.85rem; padding: 1rem 0;">Sem compromissos agendados</li>';
+        }
+      } catch (err) {
+        const status = err.status || (err.result && err.result.error && err.result.error.code);
+        console.error('Erro ao buscar calendário (status ' + status + '):', err);
+
+        if (status === 403) {
+          // Token não tem escopo de calendário — forçar nova autenticação
+          document.getElementById('agenda-list').innerHTML =
+            '<li style="opacity: 0.6; text-align: center; font-size: 0.85rem; padding: 1rem 0; color: var(--pink-light);">Clique em "Sair" e faça login novamente para autorizar o calendário.</li>';
+
+          // Tenta re-autorizar automaticamente limpando o token
+          setTimeout(() => {
+            gapi.client.setToken(null);
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+          }, 2000);
+        } else {
+          document.getElementById('agenda-list').innerHTML =
+            `<li style="opacity: 0.6; text-align: center; font-size: 0.85rem; padding: 1rem 0; color: var(--danger);">Erro ${status}: ${JSON.stringify(err.result?.error?.message || err.message || err)}</li>`;
+        }
+      }
+
+    }
+
+    // ===================== AUTOMAÇÕES DE RESULTADOS =====================
+
+    // --- Reuniões: checkbox nos compromissos ---
+    function toggleMeeting(key, liId, checked) {
+      localStorage.setItem(key, checked ? '1' : '0');
+      const li = document.getElementById(liId);
+      if (li) li.classList.toggle('done', checked);
+    }
+
+    // --- E-mails: detectar redução nos não lidos ---
+    let lastUnreadCount = null;
+
+    async function pollUnreadEmails() {
+      try {
+        const current = await getExactUnreadCount();
+        document.getElementById('val-unread-emails').innerText = current.toLocaleString('pt-BR');
+        lastUnreadCount = current;
+      } catch (e) {
+        console.warn('Erro ao verificar não lidos:', e);
+      }
+    }
+
+    // Inicia polling a cada 5 minutos após o login
+    function startEmailPolling(initialUnread) {
+      lastUnreadCount = initialUnread;
+      setInterval(pollUnreadEmails, 5 * 60 * 1000);
+    }
+
+  </script>
+  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
